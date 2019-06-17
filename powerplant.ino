@@ -1,9 +1,6 @@
-// POWERPLANT
-// - get current number of visitors from powerplant.ericajewell.com
-// - turn on three random relays per visitor
-
-// relays on pins 1-9
-// for these relays, HIGH = on, LOW = off
+/*
+ Adapted from http://www.arduino.cc/en/Tutorial/WebClientRepeating
+ // for these relays, HIGH = on, LOW = off
 
 //9 = A0
 //8 = A1
@@ -14,6 +11,7 @@
 //3 = 5
 //2 = 3
 //1 = 2
+ */
 
 #include <SPI.h>
 #include <Ethernet.h>
@@ -31,7 +29,7 @@ IPAddress myDns(192, 168, 0, 1);
 EthernetClient client;
 
 char server[] = "www.powerplant.ericajewell.com";  // also change the Host line in httpRequest()
-//IPAddress server(68, 65, 122, 37);
+//IPAddress server(64,131,82,241);
 
 unsigned long lastConnectionTime = 0;           // last time you connected to the server, in milliseconds
 const unsigned long postingInterval = 3*1000;  // delay between updates, in milliseconds
@@ -41,12 +39,19 @@ int relay1, relay2, relay3, relay4, relay5, relay6, relay7, relay8, relay9;
 int lightsSet1[9] = {2, 6, 9, A1, A0, 7, 8, 3, 5};
 int lightsSet2[9] = {A0, 5, 9, 8, 3, 6, A1, 7, 2};
 int lightsSet3[9] = {7, 5, 3, 9, A0, 6, 8, 2, A1};
-bool lightsAreOn = false;
 bool set1 = true;
 bool set2 = false;
 bool set3 = false;
 
-void setup(){
+String incomingData, readString1;
+int x = 0;
+char lf = 10;
+
+void setup() {
+  // Disable SD SPI
+  pinMode(4,OUTPUT);
+  digitalWrite(4,HIGH);
+  // Set up relay pins
   pinMode(A0, OUTPUT);
   digitalWrite(A0, LOW);
   pinMode(2, OUTPUT);
@@ -66,54 +71,58 @@ void setup(){
   pinMode(9, OUTPUT);
   digitalWrite(9, LOW);
   resetRandomness(); // set random groups
-  Serial.begin(9600); 
+  
+  // start serial port:
+//  Serial.begin(9600);
+//  while (!Serial) {
+    ; // wait for serial port to connect. Needed for native USB port only
+//  }
+
   // start the Ethernet connection:
-  Serial.println("Initialize Ethernet with DHCP:");
+//  Serial.println("Initialize Ethernet with DHCP:");
   if (Ethernet.begin(mac) == 0) {
-    Serial.println("Failed to configure Ethernet using DHCP");
+//    Serial.println("Failed to configure Ethernet using DHCP");
     // Check for Ethernet hardware present
     if (Ethernet.hardwareStatus() == EthernetNoHardware) {
-      Serial.println("Ethernet shield was not found.  Sorry, can't run without hardware. :(");
+//      Serial.println("Ethernet shield was not found.  Sorry, can't run without hardware. :(");
       while (true) {
         delay(1); // do nothing, no point running without Ethernet hardware
       }
     }
     if (Ethernet.linkStatus() == LinkOFF) {
-      Serial.println("Ethernet cable is not connected.");
+//      Serial.println("Ethernet cable is not connected.");
     }
     // try to congifure using IP address instead of DHCP:
     Ethernet.begin(mac, ip, myDns);
-    Serial.print("My IP address: ");
-    Serial.println(Ethernet.localIP());
+//    Serial.print("My IP address: ");
+//    Serial.println(Ethernet.localIP());
   } else {
-    Serial.print("  DHCP assigned IP ");
-    Serial.println(Ethernet.localIP());
+//    Serial.print("  DHCP assigned IP ");
+//    Serial.println(Ethernet.localIP());
   }
   // give the Ethernet shield a second to initialize:
   delay(1000);
 }
 
-void loop(){
-
-  // read visitornum from powerplant.ericajewell.com
-  // parse the number into 0-3
-
-  // if there's incoming data from the net connection.
-  // send it out the serial port.  This is for debugging
-  // purposes only:
-  if (client.available()) {
-    char c = client.read();
-    visitornum = int(c);
-    Serial.write(visitornum);
+void loop() {
+  incomingData = ""; // clear the string to store incoming data
+  x = 0; // clear the line counter
+  while(client.connected() && !client.available()) delay(1); //waits for data
+  while (client.connected() || client.available()) { //connected or data available
+    char c = client.read(); //gets byte from ethernet buffer
+//    Serial.print(c); //prints byte to serial monitor 
+    if (c == lf){ // if c is a new line (10),
+      x = (x + 1); // add 1 to the tally of lines (x)
+    }
+    if (x == 9){ // if we are on the ninth line
+      incomingData += c; // add these characters into a string
+      // how do we only read to the end and not the next buffer?
+    }
+    visitornum = incomingData.toInt(); 
   }
-
-  // if ten seconds have passed since your last connection,
-  // then connect again and send data:
-  if (millis() - lastConnectionTime > postingInterval) {
-    httpRequest();
-  }
-  
-  if (visitornum == 0 && lightsAreOn == true){
+//  Serial.println(visitornum);
+ 
+  if (visitornum == 0){
     digitalWrite(relay1, LOW);
     digitalWrite(relay2, LOW);
     digitalWrite(relay3, LOW);
@@ -124,33 +133,55 @@ void loop(){
     digitalWrite(relay8, LOW);
     digitalWrite(relay9, LOW);
     // reset random groups
-    resetRandomness();
-    lightsAreOn = false;
+    resetRandomness(); // maybe make a condition for when visitornum changes from something to zero to trigger this
   }
 
   if (visitornum == 1){
-    lightsAreOn = true;
     digitalWrite(relay1, HIGH);
     digitalWrite(relay2, HIGH);
     digitalWrite(relay3, HIGH);
+    digitalWrite(relay4, LOW);
+    digitalWrite(relay5, LOW);
+    digitalWrite(relay6, LOW);
+    digitalWrite(relay7, LOW);
+    digitalWrite(relay8, LOW);
+    digitalWrite(relay9, LOW);
   }
 
   if (visitornum == 2){
-    lightsAreOn = true;
+    digitalWrite(relay1, HIGH);
+    digitalWrite(relay2, HIGH);
+    digitalWrite(relay3, HIGH);
     digitalWrite(relay4, HIGH);
     digitalWrite(relay5, HIGH);
     digitalWrite(relay6, HIGH);
+    digitalWrite(relay7, LOW);
+    digitalWrite(relay8, LOW);
+    digitalWrite(relay9, LOW);
   }
 
   if (visitornum >= 3){
-    lightsAreOn = true;
+    digitalWrite(relay1, HIGH);
+    digitalWrite(relay2, HIGH);
+    digitalWrite(relay3, HIGH);
+    digitalWrite(relay4, HIGH);
+    digitalWrite(relay5, HIGH);
+    digitalWrite(relay6, HIGH);
     digitalWrite(relay7, HIGH);
     digitalWrite(relay8, HIGH);
     digitalWrite(relay9, HIGH);
   }
+
+
+  // if ten seconds have passed since your last connection,
+  // then connect again and send data:
+  if (millis() - lastConnectionTime > postingInterval) {
+    httpRequest();
+  }
+
 }
 
-// this method makes an HTTP connection to the server:
+// this method makes a HTTP connection to the server:
 void httpRequest() {
   // close any connection before send a new request.
   // This will free the socket on the WiFi shield
@@ -158,7 +189,7 @@ void httpRequest() {
 
   // if there's a successful connection:
   if (client.connect(server, 80)) {
-    Serial.println("connecting...");
+//    Serial.println("connecting...");
     // send the HTTP GET request:
     client.println("GET /visitornum.txt HTTP/1.1");
     client.println("Host: www.powerplant.ericajewell.com");
@@ -170,7 +201,7 @@ void httpRequest() {
     lastConnectionTime = millis();
   } else {
     // if you couldn't make a connection:
-    Serial.println("connection failed");
+//    Serial.println("connection failed");
   }
 }
 
