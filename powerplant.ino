@@ -1,16 +1,6 @@
 /*
  Adapted from http://www.arduino.cc/en/Tutorial/WebClientRepeating
  // for these relays, HIGH = on, LOW = off
-
-//9 = A0
-//8 = A1
-//7 = 9
-//6 = 8
-//5 = 7
-//4 = 6
-//3 = 5
-//2 = 3
-//1 = 2
  */
 
 #include <SPI.h>
@@ -37,8 +27,8 @@ const unsigned long postingInterval = 3*1000;  // delay between updates, in mill
 int visitornum;
 int relay1, relay2, relay3, relay4, relay5, relay6, relay7, relay8, relay9;
 int lightsSet1[9] = {2, 6, 9, A1, A0, 7, 8, 3, 5};
-int lightsSet2[9] = {A0, 5, 9, 8, 3, 6, A1, 7, 2};
-int lightsSet3[9] = {7, 5, 3, 9, A0, 6, 8, 2, A1};
+int lightsSet2[9] = {A0, 3, 2, 7, 5, 6, A1, 8, 9};
+int lightsSet3[9] = {9, A1, 8, 2, A0, 7, 3, 6, 5};
 bool set1 = true;
 bool set2 = false;
 bool set3 = false;
