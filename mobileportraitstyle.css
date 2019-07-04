@@ -1,0 +1,119 @@
+html,body {
+    width: 100%;
+    height: 100%;
+    margin: 0px;
+    padding: 0px;
+    overflow-y: hidden;
+}
+
+.bigger-container {
+    position: absolute;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    background-color: #fffd8c;
+    padding-bottom: 0;
+    margin-top: 0;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 2;
+}
+
+.player-container {
+    position: absolute;
+    margin-top: 30%;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: -1;
+}
+
+#header {
+    font-family: 'arca_majora_3heavy';
+    color: black;
+    font-size: 70px;
+	letter-spacing: 17px;
+	margin-top: 8%;
+}
+
+/* textbox div */
+#textbox {
+	position: absolute;
+	text-align: center;
+	background-color: #fffd8c;
+    top: 65%;
+    left: 15%;
+    width: 70%;
+    font-family: 'arca_majora_3bold';
+    color: black;
+    letter-spacing: 3px;
+    font-size: 35px;
+    line-height: 42px;
+}
+
+/* join / leave / wait button div */
+#leftbutton {
+	position: absolute;
+    bottom: 5%;
+    left: 15%;
+    z-index: 2;
+}
+
+/* about button div */
+#rightbutton {
+	position: absolute;
+    bottom: 5%;
+    right: 15%;
+    z-index: 2;
+}
+
+/* join / leave / wait button style */
+#btn_joinleavewait {
+    background-color: white;
+    border: 10px solid black; 
+    color: black;
+    padding: 30px 55px;
+    font-family: 'arca_majora_3bold';
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 50px;
+    letter-spacing: 7px;
+    outline: 0;
+}
+        
+/* about button style */
+#btn_about {
+    background-color: white;
+    border: 10px solid black;
+    color: black;
+    padding: 30px 45px;
+    font-family: 'arca_majora_3bold';
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 50px;
+    letter-spacing: 5px;
+    outline: 0;
+}
+
+@font-face {
+    font-family: 'arca_majora_3bold';
+    src: url('fonts/arcamajora3-bold-webfont.woff2') format('woff2'),
+         url('fonts/arcamajora3-bold-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+@font-face {
+    font-family: 'arca_majora_3heavy';
+    src: url('fonts/arcamajora3-heavy-webfont.woff2') format('woff2'),
+         url('fonts/arcamajora3-heavy-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
