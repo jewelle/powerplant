@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>POWERPLANT</title>
+	<link href="favicon.ico" rel="icon" type="image/x-icon" />
+	<link id = "style" rel="stylesheet" type="text/css" href="style.css">
+
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/video-dev/clappr-rtmp-plugin@latest/dist/rtmp.min.js"></script>
+    
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+</head>
+<body>
+
+
+<div class = "bigger-container">
+    
+    <div id = "player"  class = "player-container"></div>
+    
+    <center><p id = header>POWERPLANT</p></center>
+    
+    <p id = "textbox"></p>
+    
+    <div id = "leftbutton">
+    <button type ="button" id = "btn_joinleavewait">WAIT</button>
+    </div>
+    
+    <div id = "rightbutton">
+    <button type ="button" id = "btn_about" onclick="window.location.href = 'http://www.powerplant.ericajewell.com/about';">ABOUT</button>
+    </div>
+    
+</div>
+
+<script type="text/javascript">
+var h = $(window).height();
+var w = $(window).width();
+var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+// if mobile in portrait mode, change stylesheet
+if (isMobile && h > w){
+    $("#style").attr("href", "mobileportraitstyle.css");
+}
+
+// set up player
+if($("#player").length>0){
+	player = new Clappr.Player({
+		source: "http://80.172.244.141:8080/hls/erica.m3u8",
+		parentId: "#player",
+		mute: true,
+		autoPlay: true,
+		controls: false,
+		disableVideoTagContextMenu: true,
+		chromeless: true,
+		playInline: true,
+		hideMediaControl: true,
+		width: $(".player-container").width(), 
+		height: $(".player-container").height(), 
+		poster: "powerplant.jpg",
+		events: {
+			onError: function(e) {
+				console.log(e);
+				$("#textbox").html("The livestream is temporarily down, please come back later.");
+				$("#player").html("<img src='powerplant.jpg' width=100%>");
+			}
+		},
+		hlsjsConfig: {
+			liveSyncDurationCount: 1
+		},
+	});
+}
+
+function setSize() {
+    var h = $(window).height();
+    var w = $(window).width();
+    
+    if (isMobile && h > w){
+        // change rel stylesheet
+        $("#style").attr("href", "mobileportraitstyle.css");
+        newWidth = w;
+        newHeight = 0.5625 * w;
+        //resize video player and container
+        player.resize({width: newWidth, height: newHeight});
+        $(".player-container").css('height', newHeight);
+        $(".player-container").css('width', newWidth);
+        //container sizing
+        $(".bigger-container").css('height', '100%');
+        $(".bigger-container").css('width', '100%');
+    }
+    
+    // set sizing for desktop/mobile landscape
+    else {
+        $("#style").attr("href", "style.css");
+        newHeight = h;
+        newWidth = (h * 16)/9;
+        // stretch beyond page
+        if (w > newWidth){
+            newWidth = w;
+            newHeight = 0.5625 * w;
+        }
+        //resize video player
+        player.resize({width: newWidth, height: newHeight});
+        //container sizing
+        $(".bigger-container").css('height', newHeight);
+        $(".bigger-container").css('width', newWidth);
+        //video container sizing
+        $(".player-container").css('height', newHeight);
+        $(".player-container").css('width', newWidth);
+    }
+}
+
+// Only say "tap to view video" if video isn't playing (doesn't autoplay on some mobile browsers)
+function checkPlayingJoin(){
+    if (player.isPlaying() == false){
+        $('#textbox').html("Click JOIN and tap the video to view the power you are consuming by visiting this site.");
+    }
+    else {
+        $('#textbox').html("Click JOIN to view the power you are consuming by visiting this site.");
+    }
+}
+
+function checkPlayingLeave(){
+    if (player.isPlaying() == false){
+        $('#textbox').html("Please be patient, this livestream has a 20 sec - 1 min delay. Tap the video to view.");
+    }
+    else {
+        $('#textbox').html("Please be patient, this livestream has a 20 sec - 1 min delay.");
+    }
+}
+
+
+
+</script>
+<script type="text/javascript" src="ajax.js"></script>
+
+</body>
+</html>
