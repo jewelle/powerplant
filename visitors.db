@@ -1,0 +1,138 @@
+<?php
+/*************************************************************************
+check if visitor is new, add or remove visitors from database
+*************************************************************************/
+
+$dbfile = "visitors.db"; // path to file storing number of visitors
+$ipfile = "queue.db"; // path to file storing order of visitors
+$adfile = "audience.db"; // path to file for storing ips of audience members currently viewing the installation
+$expire = 5; // time in seconds to consider someone online before removing from the list. must be a bit longer than the timeout in the .js file.
+
+if(!file_exists($dbfile)) {
+    die("Error: Data file " . $dbfile . " NOT FOUND!");
+}
+if(!is_writable($dbfile)) {
+    die("Error: Data file " . $dbfile . " is NOT writable! Please CHMOD it to 666!");
+}
+if(!file_exists($ipfile)) {
+    die("Error: Data file " . $ipfile . " NOT FOUND!");
+}
+if(!is_writable($ipfile)) {
+    die("Error: Data file " . $ipfile . " is NOT writable! Please CHMOD it to 666!");
+}
+if(!file_exists($ipfile)) {
+    die("Error: Data file " . $adfile . " NOT FOUND!");
+}
+if(!is_writable($ipfile)) {
+    die("Error: Data file " . $adfile . " is NOT writable! Please CHMOD it to 666!");
+}
+ 
+function CountVisitors() {
+    global $dbfile, $expire;
+    $cur_ip = getIP();
+    $cur_time = time();
+    $dbary_new = array();
+ 
+    $dbaryvisitors = unserialize(file_get_contents($dbfile));
+    if(is_array($dbaryvisitors)) {
+        while(list($user_ip, $user_time) = each($dbaryvisitors)) {
+            if(($user_ip != $cur_ip) && (($user_time + $expire) > $cur_time)) { // checking if these ones have expired. can still keep this just with a long expiration of like 20 mins
+                $dbary_new[$user_ip] = $user_time; // adding them into the new array if not
+            }
+        }
+    }
+    $dbary_new[$cur_ip] = $cur_time; // add record for current user
+ 
+    $fp = fopen($dbfile, "w");
+    fputs($fp, serialize($dbary_new));
+    fclose($fp);
+ 
+    $out = sprintf("%03d", count($dbary_new)); // format the result to display 3 digits with leading 0's
+    return $out;
+}
+
+// update queue.db. only add this user and their time if they're not in it. 
+// otherwise, only remove them if they're not in visitors.db
+function FormQueue() {
+    global $ipfile, $dbfile;
+    $cur_ip = getIP();
+    $cur_time = time();
+    $dbary_new_queue = array();
+    $dbaryqueue = unserialize(file_get_contents($ipfile));
+    $dbaryvisitors = unserialize(file_get_contents($dbfile));
+    if(is_array($dbaryqueue)) {
+        // update others in the array based on visitors.db, don't change times
+        while(list($user_ip, $user_time) = each($dbaryqueue)) { // open the db file, iterate through each instance
+            // if user_ip is still in the visitors db array, re-add them to the queue db without changing their times
+            if(array_key_exists($user_ip, $dbaryvisitors)) {
+                $dbary_new_queue[$user_ip] = $user_time;
+            }
+        }
+    }
+    // if i'm not yet in the db, or if the db doesn't yet exist, add me
+    if (is_array($dbaryqueue) == false || array_key_exists($cur_ip, $dbaryqueue) == false){
+        // echo "Adding new user to queue";
+        $dbary_new_queue[$cur_ip] = $cur_time;
+    }
+    // sort the new array in ascending order by value (entrance time)
+    asort($dbary_new_queue); 
+    $fp = fopen($ipfile, "w");
+    fputs($fp, serialize($dbary_new_queue));
+    fclose($fp);
+ 
+    // search array for key ($cur_ip)
+    // gets their index in that array
+    $i = array_search($cur_ip, array_keys($dbary_new_queue));
+    $out = $i + 1; // add 1 because first index = 0, etc.
+    return $out;
+}
+
+// updating audience based on whether they're in visitors.db
+// necessary because someone might leave the site without clicking "leave" and then be stuck in audience.db
+function UpdateAudience() {
+    global $adfile, $dbfile;
+    $cur_ip = getIP();
+    $dbary_new_audience = array();
+ 
+    $dbary = unserialize(file_get_contents($adfile));
+    $dbaryvisitors = unserialize(file_get_contents($dbfile));
+    if(is_array($dbary)) {
+        // update others in the array based on visitors.db, don't change times
+        while(list($user_ip, $user_time) = each($dbary)) {
+            // do somthing diff for the current ip bsaed on whether joined.
+            // if user_ip is still in the visitors db array, re-add them to the queue db without changing their times
+            // problematic because they may have left
+            // but shouldn't this work? because only checking if they are still in audience.db?
+            // conflict happens with bad timing since it's asynchronous
+            if(array_key_exists($user_ip, $dbaryvisitors)) {
+                $dbary_new_audience[$user_ip] = $user_time;
+            }
+        }
+    }
+
+    $fp = fopen($adfile, "w");
+    fputs($fp, serialize($dbary_new_audience));
+    fclose($fp);
+ 
+ // this will become visitornum
+    $out = sprintf("%03d", count($dbary_new_audience)); // format the result to display 3 digits with leading 0's
+    return $out;
+}
+
+function getIP() {
+    if(isset($_SERVER['HTTP_X_FORWARDED_FOR'])) $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+    elseif(isset($_SERVER['REMOTE_ADDR'])) $ip = $_SERVER['REMOTE_ADDR'];
+    else $ip = "0";
+    return $ip;
+}
+
+CountVisitors();
+$this_visitors_queue_num = FormQueue();
+$audiencenum = UpdateAudience();
+
+$fp = fopen('visitornum.txt', 'w');
+fwrite($fp, $audiencenum);
+fclose($fp);
+
+echo $this_visitors_queue_num; // spit out the user's current number in the queue (used to change button)
+?>
