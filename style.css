@@ -1,0 +1,149 @@
+html,body
+{
+    width: 100%;
+    height: 100%;
+    margin: 0px;
+    padding: 0px;
+    /*overflow-y: hidden;*/
+}
+
+.bigger-container{
+    position: absolute;
+    overflow: hidden;
+    width:100%;
+    padding-bottom: 0;
+    margin-top: 0;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 2;
+}
+
+.player-container{
+    position: absolute;
+    margin-top: 0px;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: -1;
+}
+
+#header {
+    font-family: 'arca_majora_3heavy';
+    color: black;
+    font-size: 50px;
+	letter-spacing: 8px;
+}
+
+/* textbox div */
+#textbox {
+	position: absolute;
+    bottom: 43%;
+    left: 67%;
+    /*static width will help make the text stay stable*/
+    /*width: 9%;*/
+    width: 118px;
+    border: 3px solid white;
+    background: white;
+    font-family: 'arca_majora_3bold';
+    color: black;
+    letter-spacing: 1px;
+    font-size: 13px;
+    line-height: 15px;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    padding-left: 15px;
+    padding-right: 10px;
+}
+
+#textbox:before {
+  content: "";
+  width: 0px;
+  height: 0px;
+  position: absolute;
+  border-left: 10px solid #fff;
+  border-right: 10px solid transparent;
+  border-top: 10px solid #fff;
+  border-bottom: 10px solid transparent;
+  left: 20px;
+  bottom: -23px;
+}
+
+#textbox:after {
+  content: "";
+  width: 0px;
+  height: 0px;
+  position: absolute;
+  border-left: 10px solid #fff;
+  border-right: 10px solid transparent;
+  border-top: 10px solid #fff;
+  border-bottom: 10px solid transparent;
+  left: 24px;
+  bottom: -13px;
+}
+
+/* join / leave / wait button div */
+#leftbutton {
+	position: absolute;
+    bottom: 8%;
+    left: 8%;
+    z-index: 2;
+}
+
+/* about button div */
+#rightbutton {
+	position: absolute;
+    bottom: 8%;
+    right: 8%;
+    z-index: 2;
+}
+
+/* join / leave / wait button style */
+#btn_joinleavewait {
+    background-color: white;
+    border: 6px solid black; 
+    color: black;
+    padding: 15px 35px;
+    font-family: 'arca_majora_3bold';
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 25px;
+    letter-spacing: 3px;
+    outline: 0;
+}
+
+/* about button style */
+#btn_about {
+    background-color: white;
+    border: 6px solid black; 
+    color: black;
+    padding: 15px 30px;
+    font-family: 'arca_majora_3bold';
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 25px;
+    letter-spacing: 3px;
+    outline: 0;
+}
+
+@font-face {
+    font-family: 'arca_majora_3bold';
+    src: url('fonts/arcamajora3-bold-webfont.woff2') format('woff2'),
+         url('fonts/arcamajora3-bold-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+@font-face {
+    font-family: 'arca_majora_3heavy';
+    src: url('fonts/arcamajora3-heavy-webfont.woff2') format('woff2'),
+         url('fonts/arcamajora3-heavy-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
